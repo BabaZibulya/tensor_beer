@@ -20,7 +20,7 @@ def now_time():
 
 def main(_):
     ps_hosts = FLAGS.ps_hosts.split(",")
-    worker_hosts = FLAGS.worker_hosts.split(",")
+    worker_hosts = FLAGS.worker_hosts.split(",")[ :FLAGS.instances]
 
     # Create a cluster from the parameter server and worker hosts.
     cluster = tf.train.ClusterSpec({"ps": ps_hosts, "worker": worker_hosts})
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument(
       "--worker_hosts",
       type=str,
-      default="10.128.0.3:2223", #,10.128.0.4:2223,10.10.128.0.5:2223", # instance-2, instance-3, instance-4
+      default="10.128.0.3:2223,10.128.0.4:2223,10.10.128.0.5:2223", # instance-2, instance-3, instance-4
       # default = "192.168.1.13:2223",
       help="Comma-separated list of hostname:port pairs"
     )
@@ -108,6 +108,13 @@ if __name__ == "__main__":
       type=int,
       default=10,
       help="Number of steps"
+    )
+    # Number of instances
+    parser.add_argument(
+      "--instances",
+      type=int,
+      default=1,
+      help="Number of instances"
     )
     FLAGS, unparsed = parser.parse_known_args()
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)

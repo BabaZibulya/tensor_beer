@@ -16,7 +16,6 @@ sudo apt-get update && sudo apt-get install google-cloud-sdk
 gcloud config set project datamining-204710
 
 # Pull base image
-sudo docker pull frolvlad/alpine-python-machinelearning
 sudo docker pull tensorflow/tensorflow
 
 # Create Dockerfile (image) over base image
@@ -44,13 +43,13 @@ docker pull mbondarenko2228/datamining
 docker run -p 2223:2223 -it mbondarenko2228/datamining
 # run workers before parameter server
  # instance 1
- python tensor_beer.py --job_name ps --steps 10
+ python tensor_beer.py --job_name ps --steps 10 --instances 1
  # instance 2
- python tensor_beer.py --job_name worker --task_index 0 --steps 10
+ python tensor_beer.py --job_name worker --task_index 0 --steps 10 --instances 1
  # instance 3
- python tensor_beer.py --job_name worker --task_index 1 --steps 10
+ python tensor_beer.py --job_name worker --task_index 1 --steps 10 --instances 1
  # instance 4
- python tensor_beer.py --job_name worker --task_index 2 --steps 10
+ python tensor_beer.py --job_name worker --task_index 2 --steps 10 --instances 1
 
 # Compare START and FINISH time
 # with http://www.onlineconversion.com/days_between_advanced.htm
