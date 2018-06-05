@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import argparse
 import os, sys
+import datetime
 
 from tensorflow.examples.tutorials.mnist import input_data
 import tensorflow as tf
@@ -12,6 +13,9 @@ import numpy as np
 from tensor_model import get_model
 
 FLAGS = None
+
+def now_time():
+    return datetime.datetime.now() #.strftime("%H:%M:%S")
 
 
 def main(_):
@@ -27,6 +31,7 @@ def main(_):
                            task_index=FLAGS.task_index)
 
     if FLAGS.job_name == "ps":
+        print('START ps time', now_time())
         server.join()
     elif FLAGS.job_name == "worker":
         # Assigns ops to the local worker by default.
@@ -35,8 +40,8 @@ def main(_):
             cluster=cluster)):
 
             # Build model...
-            global_step = tf.contrib.framework.get_or_create_global_step()
-            X, Y, x_train, y_train, loss_op, train_op, accuracy = get_model()
+            global_step = tf.train.get_or_create_global_step()
+            X, Y, x_train, y_train, loss_op, train_op, accuracy = get_model(tf.train.get_global_step())
 
         # The StopAtStepHook handles stopping after running given steps.
         hooks=[tf.train.StopAtStepHook(last_step=FLAGS.steps)]
@@ -49,14 +54,20 @@ def main(_):
                                                checkpoint_dir="/workdir/tf_res",
                                                hooks=hooks) as mon_sess:
             i = 0
-            while i < FLAGS.steps: # not mon_sess.should_stop():
+            ts = now_time()
+            tt = ts
+            print('START worker time', ts)
+            while not mon_sess.should_stop(): # i < FLAGS.steps: # 
                 # Run a training step asynchronously.
                 # See <a href="../api_docs/python/tf/train/SyncReplicasOptimizer"><code>tf.train.SyncReplicasOptimizer</code></a> for additional details on how to
                 # perform *synchronous* training.
                 # mon_sess.run handles AbortedError in case of preempted PS.
-                print('sess', i)
                 mon_sess.run([loss_op, train_op], feed_dict={X:x_train, Y:y_train})
+                tn = now_time()
+                print('worker after step', i, tn - tt, tn - ts, tn)
+                tt = tn
                 i += 1
+            print('END worker time', tt - ts, tt)
 
 # 20 = 10100
 

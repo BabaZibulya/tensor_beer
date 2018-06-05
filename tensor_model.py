@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 
-def get_model():
+def get_model(global_step):
     x_train = np.genfromtxt('beer_data/x_train.csv', delimiter=' ')
     x_test = np.genfromtxt('beer_data/x_test.csv', delimiter=' ')
     y_train_ = np.genfromtxt('beer_data/y_train.csv', delimiter=' ', dtype=np.int32)
@@ -50,7 +50,7 @@ def get_model():
     loss_op = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
         logits=logits, labels=Y))
     optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
-    train_op = optimizer.minimize(loss_op)
+    train_op = optimizer.minimize(loss_op, global_step = global_step)
 
     # Evaluate model
     correct_pred = tf.equal(tf.argmax(prediction, 1), tf.argmax(Y, 1))
